@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de design do Radar de Voos. Os componentes só usam estes nomes.
+ * A paleta padrão do Tailwind está desligada (--color-*: initial) para nenhuma cor fugir daqui.
+ * O modo escuro redefine os mesmos nomes mais abaixo.
+ */
+@theme {
+  --color-*: initial;
+
+  --color-fundo: #f4f4f5;
+  --color-superficie: #ffffff;
+  --color-superficie-hover: #ececee;
+  --color-superficie-ativa: #dcdce0;
+  --color-realce: #e4e4e7;
+
+  /* A "borda" passa 3:1 contra a superfície; a "suave" é só decorativa (grade do gráfico, divisórias). */
+  --color-borda: #767680;
+  --color-borda-suave: #e4e4e7;
+
+  --color-texto: #18181b;
+  --color-texto-secundario: #52525b;
+
+  --color-destaque: #1d4f91;
+  --color-destaque-hover: #173f75;
+  --color-destaque-ativo: #12325c;
+  --color-sobre-destaque: #ffffff;
+
+  --color-desabilitado: #e4e4e7;
+  --color-texto-desabilitado: #71717a;
+  --color-foco: #1d4f91;
+
+  --color-erro: #b42318;
+  --color-erro-fundo: #fef3f2;
+  --color-sucesso: #1e6b3a;
+  --color-sucesso-fundo: #ecf6ef;
+  --color-aviso: #8a4b00;
+  --color-aviso-fundo: #fff6e5;
+
+  /* Séries dos gráficos (validadas para daltonismo com a skill de dataviz). */
+  --color-serie-1: #2a78d6;
+  --color-serie-2: #eb6834;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fundo: #111113;
+    --color-superficie: #1a1a1d;
+    --color-superficie-hover: #26262a;
+    --color-superficie-ativa: #303035;
+    --color-realce: #2a2a2f;
+    --color-borda: #8b8b95;
+    --color-borda-suave: #2e2e33;
+    --color-texto: #f4f4f5;
+    --color-texto-secundario: #b4b4bc;
+    --color-destaque: #8db8f2;
+    --color-destaque-hover: #a8c9f5;
+    --color-destaque-ativo: #c3daf8;
+    --color-sobre-destaque: #0b1a2e;
+    --color-desabilitado: #26262a;
+    --color-texto-desabilitado: #8b8b95;
+    --color-foco: #8db8f2;
+    --color-erro: #ff9b8f;
+    --color-erro-fundo: #2d1513;
+    --color-sucesso: #7fd49b;
+    --color-sucesso-fundo: #12261a;
+    --color-aviso: #f5c26b;
+    --color-aviso-fundo: #2b210f;
+    --color-serie-1: #3987e5;
+    --color-serie-2: #d95926;
+    color-scheme: dark;
+  }
+}
+
+body {
+  background: var(--color-fundo);
+  color: var(--color-texto);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
