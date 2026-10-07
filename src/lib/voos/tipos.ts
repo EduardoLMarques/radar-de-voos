@@ -2,8 +2,10 @@
 export type Periodo = "qualquer" | "madrugada" | "manha" | "tarde" | "noite";
 
 export type Busca = {
-  origem: string; // código IATA, ex.: GRU
-  destino: string; // código IATA, ex.: LIS
+  origem: string; // código IATA, ex.: GRU, ou vários separados por vírgula (todos os aeroportos da cidade)
+  destino: string;
+  origemNome?: string; // como aparece na tela, ex.: "São Paulo (todos)". Não vai para a API.
+  destinoNome?: string;
   dataInicio: string; // AAAA-MM-DD, primeira data de ida
   dataFim: string; // AAAA-MM-DD, última data de ida
   periodo: Periodo;

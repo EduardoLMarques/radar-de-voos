@@ -20,7 +20,13 @@ export const ROTULO_PERIODO: Record<Periodo, string> = {
 };
 
 const REGEX_DATA = /^\d{4}-\d{2}-\d{2}$/;
-const REGEX_IATA = /^[A-Z]{3}$/;
+/** Um código IATA ou até 7 separados por vírgula. */
+export const REGEX_CODIGOS = /^[A-Z]{3}(,[A-Z]{3}){0,6}$/;
+
+export const codigosEmComum = (a: string, b: string) => a.split(",").some((c) => b.split(",").includes(c));
+
+/** "GRU,CGH" → "GRU/CGH" */
+export const rotuloCodigos = (codigos: string) => codigos.replaceAll(",", "/");
 
 /** Lista as datas entre início e fim, inclusive (AAAA-MM-DD). */
 export function datasNoIntervalo(inicio: string, fim: string): string[] {
@@ -75,8 +81,8 @@ export function paramEscalas(escalasMax: number): number {
 
 /** Valida os parâmetros da URL e devolve a busca ou uma mensagem de erro. */
 export function lerBusca(params: URLSearchParams, hoje: string): { busca: Busca } | { erro: string } {
-  const origem = (params.get("origem") ?? "").trim().toUpperCase();
-  const destino = (params.get("destino") ?? "").trim().toUpperCase();
+  const origem = (params.get("origem") ?? "").replace(/\s/g, "").toUpperCase();
+  const destino = (params.get("destino") ?? "").replace(/\s/g, "").toUpperCase();
   const dataInicio = params.get("dataInicio") ?? "";
   const dataFim = params.get("dataFim") ?? dataInicio;
   const periodo = (params.get("periodo") ?? "qualquer") as Periodo;
@@ -85,9 +91,9 @@ export function lerBusca(params: URLSearchParams, hoje: string): { busca: Busca 
   const diasTexto = params.get("diasViagem");
   const diasViagem = diasTexto ? Number(diasTexto) : null;
 
-  if (!REGEX_IATA.test(origem)) return { erro: "Informe a origem com o código de 3 letras do aeroporto (ex.: GRU)." };
-  if (!REGEX_IATA.test(destino)) return { erro: "Informe o destino com o código de 3 letras do aeroporto (ex.: LIS)." };
-  if (origem === destino) return { erro: "Origem e destino precisam ser diferentes." };
+  if (!REGEX_CODIGOS.test(origem)) return { erro: "Escolha a cidade ou o aeroporto de origem." };
+  if (!REGEX_CODIGOS.test(destino)) return { erro: "Escolha a cidade ou o aeroporto de destino." };
+  if (codigosEmComum(origem, destino)) return { erro: "Origem e destino precisam ser diferentes." };
   if (!REGEX_DATA.test(dataInicio) || !REGEX_DATA.test(dataFim)) return { erro: "Escolha as datas de ida." };
   if (dataInicio < hoje) return { erro: "A primeira data de ida já passou." };
   if (dataFim < dataInicio) return { erro: "A data final vem antes da inicial." };

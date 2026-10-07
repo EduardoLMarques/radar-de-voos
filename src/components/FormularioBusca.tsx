@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { AEROPORTOS } from "@/lib/aeroportos";
-import { MAX_DIAS, ROTULO_PERIODO, datasNoIntervalo, somarDias } from "@/lib/voos/filtros";
+import { CampoAeroporto } from "@/components/CampoAeroporto";
+import { MAX_DIAS, REGEX_CODIGOS, ROTULO_PERIODO, codigosEmComum, datasNoIntervalo, rotuloCodigos, somarDias } from "@/lib/voos/filtros";
 import type { Busca, Periodo } from "@/lib/voos/tipos";
 
 type Props = {
@@ -29,9 +29,9 @@ export function FormularioBusca({ inicial, hoje, carregando, onBuscar }: Props) 
   const definir = <K extends keyof Busca>(k: K, v: Busca[K]) => setF((atual) => ({ ...atual, [k]: v }));
 
   const erros: Partial<Record<keyof Busca, string>> = {};
-  if (!/^[A-Z]{3}$/.test(f.origem)) erros.origem = "Use o código de 3 letras do aeroporto, ex.: GRU.";
-  if (!/^[A-Z]{3}$/.test(f.destino)) erros.destino = "Use o código de 3 letras do aeroporto, ex.: LIS.";
-  else if (f.destino === f.origem) erros.destino = "O destino precisa ser diferente da origem.";
+  if (!REGEX_CODIGOS.test(f.origem)) erros.origem = "Digite a cidade ou o aeroporto e escolha uma opção da lista.";
+  if (!REGEX_CODIGOS.test(f.destino)) erros.destino = "Digite a cidade ou o aeroporto e escolha uma opção da lista.";
+  else if (codigosEmComum(f.origem, f.destino)) erros.destino = "O destino precisa ser diferente da origem.";
   if (!f.dataInicio || f.dataInicio < hoje) erros.dataInicio = "Escolha uma data de hoje em diante.";
   if (!f.dataFim || f.dataFim < f.dataInicio) erros.dataFim = "A data final não pode vir antes da inicial.";
   else if (datasNoIntervalo(f.dataInicio, f.dataFim).length > MAX_DIAS)
@@ -60,33 +60,19 @@ export function FormularioBusca({ inicial, hoje, carregando, onBuscar }: Props) 
 
   return (
     <form onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-superficie p-4 sm:p-6" aria-label="Buscar voos">
-      <datalist id="aeroportos">
-        {AEROPORTOS.map((a) => (
-          <option key={a.codigo} value={a.codigo}>
-            {a.nome}
-          </option>
-        ))}
-      </datalist>
-
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="origem" className={rotulo}>De onde</label>
-          <input
-            id="origem" list="aeroportos" autoComplete="off" maxLength={3} placeholder="GRU"
-            className={`${campo} uppercase`} value={f.origem} {...aria("origem")}
-            onChange={(e) => definir("origem", e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
-          />
-          {msgErro("origem")}
-        </div>
-        <div>
-          <label htmlFor="destino" className={rotulo}>Para onde</label>
-          <input
-            id="destino" list="aeroportos" autoComplete="off" maxLength={3} placeholder="LIS"
-            className={`${campo} uppercase`} value={f.destino} {...aria("destino")}
-            onChange={(e) => definir("destino", e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
-          />
-          {msgErro("destino")}
-        </div>
+        <CampoAeroporto
+          id="origem" rotulo="De onde" placeholder="Cidade ou aeroporto, ex.: São Paulo"
+          valor={f.origem ? { codigos: f.origem, rotulo: f.origemNome ?? rotuloCodigos(f.origem) } : null}
+          onEscolher={(v) => setF((a) => ({ ...a, origem: v?.codigos ?? "", origemNome: v?.rotulo }))}
+          erro={erro("origem")}
+        />
+        <CampoAeroporto
+          id="destino" rotulo="Para onde" placeholder="Cidade ou aeroporto, ex.: Lisboa"
+          valor={f.destino ? { codigos: f.destino, rotulo: f.destinoNome ?? rotuloCodigos(f.destino) } : null}
+          onEscolher={(v) => setF((a) => ({ ...a, destino: v?.codigos ?? "", destinoNome: v?.rotulo }))}
+          erro={erro("destino")}
+        />
       </div>
 
       <fieldset className="grid gap-4 sm:grid-cols-2">

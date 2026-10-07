@@ -11,7 +11,7 @@ import { acompanhar, lerAcompanhadas, pararDeAcompanhar, registrarPreco, type Ac
 import {
   formatarData, formatarDataCurta, formatarDataHoraMs, formatarDataMs, formatarPreco,
 } from "@/lib/formato";
-import { ROTULO_PERIODO, buscaParaParams, chaveBusca, somarDias } from "@/lib/voos/filtros";
+import { ROTULO_PERIODO, buscaParaParams, chaveBusca, rotuloCodigos, somarDias } from "@/lib/voos/filtros";
 import type { Busca, RespostaBusca, ResultadoDia } from "@/lib/voos/tipos";
 
 const INTERVALO_AUTO_MIN = 30;
@@ -28,8 +28,11 @@ function menorDia(dias: ResultadoDia[]): ResultadoDia | null {
   );
 }
 
+const nomeRota = (b: Busca) =>
+  `${b.origemNome ?? rotuloCodigos(b.origem)} → ${b.destinoNome ?? rotuloCodigos(b.destino)}`;
+
 const descreverBusca = (b: Busca) =>
-  `${b.origem} → ${b.destino} · ida ${formatarDataCurta(b.dataInicio)}` +
+  `${nomeRota(b)} · ida ${formatarDataCurta(b.dataInicio)}` +
   (b.dataFim !== b.dataInicio ? `–${formatarDataCurta(b.dataFim)}` : "") +
   (b.diasViagem !== null ? ` · volta após ${b.diasViagem} dias` : " · só ida");
 
@@ -102,7 +105,7 @@ export function RadarDeVoos({ hoje }: { hoje: string }) {
   const diasComErro = dias.filter((d) => d.erro);
   const semNenhumVoo = resposta !== null && melhor === null;
   const inicial: Busca = busca ?? {
-    origem: "GRU", destino: "", dataInicio: somarDias(hoje, 30), dataFim: somarDias(hoje, 36),
+    origem: "GRU,CGH", origemNome: "São Paulo (todos)", destino: "", dataInicio: somarDias(hoje, 30), dataFim: somarDias(hoje, 36),
     periodo: "qualquer", escalasMin: 0, escalasMax: 3, diasViagem: null,
   };
 
@@ -207,7 +210,7 @@ export function RadarDeVoos({ hoje }: { hoje: string }) {
 
           <div className="flex flex-wrap items-center gap-3 text-sm text-texto-secundario">
             <p className="basis-full sm:basis-auto sm:flex-1">
-              {descreverBusca(resposta.busca)} · {ROTULO_PERIODO[resposta.busca.periodo]} · consultado em{" "}
+              {descreverBusca(busca ?? resposta.busca)} · {ROTULO_PERIODO[resposta.busca.periodo]} · consultado em{" "}
               {formatarDataHoraMs(Date.parse(resposta.consultadoEm))}
             </p>
             <button type="button" className={botaoSecundario} disabled={carregando} onClick={() => busca && buscar(busca, true)}>
@@ -248,7 +251,7 @@ export function RadarDeVoos({ hoje }: { hoje: string }) {
             </section>
           )}
 
-          {melhor && <ResumoMenorPreco dia={melhor} rota={`${resposta.busca.origem} → ${resposta.busca.destino}`} />}
+          {melhor && <ResumoMenorPreco dia={melhor} rota={nomeRota(busca ?? resposta.busca)} />}
 
           {melhor && dias.length > 1 && (
             <section aria-labelledby="titulo-por-data" className="rounded-2xl bg-superficie p-4 sm:p-6">

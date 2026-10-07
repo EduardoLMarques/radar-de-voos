@@ -32,9 +32,11 @@ export function diaDeExemplo(busca: Busca, data: string): ResultadoDia {
     const chegadaMs = Date.parse(`${data}T${pad(hora)}:${pad(minuto)}:00Z`) + duracaoMin * 60_000;
     const chegada = new Date(chegadaMs).toISOString().slice(0, 16).replace("T", " ");
     const companhia = COMPANHIAS[Math.floor(rnd() * COMPANHIAS.length)];
-    const possiveis = CONEXOES.filter((c) => c !== busca.origem && c !== busca.destino);
+    const origem = busca.origem.split(",")[0];
+    const destino = busca.destino.split(",")[0];
+    const possiveis = CONEXOES.filter((c) => c !== origem && c !== destino);
     const conexoes = Array.from({ length: escalas }, () => possiveis[Math.floor(rnd() * possiveis.length)]);
-    const paradas = [busca.origem, ...conexoes, busca.destino];
+    const paradas = [origem, ...conexoes, destino];
     const partida = `${data} ${pad(hora)}:${pad(minuto)}`;
     return {
       preco: Math.round(base * (1.25 - escalas * 0.12 + rnd() * 0.6)),

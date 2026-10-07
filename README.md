@@ -3,6 +3,7 @@
 Acompanha preços de passagens aéreas e mostra o histórico de preço de um destino.
 
 - **Menor preço** do período, com data, horário, companhia e escalas.
+- **Busca por cidade:** digite a cidade (em português ou inglês), o aeroporto, o código ou o país e escolha na lista. Em cidades com mais de um aeroporto dá para buscar em todos de uma vez.
 - **Filtros:** origem, destino, intervalo de datas de ida (até 7 dias), só ida ou ida e volta, horário de partida e escalas mínimas e máximas.
 - **Gráfico por data:** o menor preço de cada dia do intervalo. Toque numa data para ver os voos dela.
 - **Histórico de preço** da rota nos últimos ~60 dias (dados do Google Flights).
@@ -31,6 +32,7 @@ Na Vercel, cadastre `SERPAPI_KEY` em Settings → Environment Variables.
 ## Onde fica cada coisa
 
 - `src/lib/voos/serpapi.ts`: conversa com a SerpApi. Se a API mudar, só este arquivo muda.
+- `src/lib/aeroportos/` e `src/data/aeroportos.json`: busca de aeroportos. A base vem do OurAirports (domínio público), só com aeroportos de voo comercial; para atualizar, rode `npm run gerar:aeroportos`. Nomes de cidades em português e apelidos ficam em `nomes-pt.ts`.
 - `src/lib/voos/filtros.ts`: regras de filtro e validação da busca (com testes).
 - `src/app/api/voos/route.ts`: rota do servidor; a chave nunca vai para o navegador.
 - `src/components/`: telas e gráficos. Tokens de design em `src/app/globals.css`.
